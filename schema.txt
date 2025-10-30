@@ -1,0 +1,237 @@
+
+
+CREATE SCHEMA IF NOT EXISTS financial2;
+SET search_path TO financial2;
+
+CREATE TABLE "account" (
+    "account_id" INTEGER,
+    "district_id" INTEGER,
+    "frequency" VARCHAR,
+    "date" TIMESTAMP
+);
+
+CREATE TABLE "card" (
+    "card_id" INTEGER,
+    "disp_id" INTEGER,
+    "type" VARCHAR,
+    "issued" TIMESTAMP
+);
+
+CREATE TABLE "client" (
+    "client_id" INTEGER,
+    "birth_number" INTEGER,
+    "district_id" INTEGER
+);
+
+CREATE TABLE "disp" (
+    "disp_id" INTEGER,
+    "client_id" INTEGER,
+    "account_id" INTEGER,
+    "type" VARCHAR
+);
+
+CREATE TABLE "loan" (
+    "loan_id" INTEGER,
+    "account_id" INTEGER,
+    "date" INTEGER,
+    "amount" INTEGER,
+    "duration" INTEGER,
+    "payments" INTEGER,
+    "status" VARCHAR
+);
+
+CREATE TABLE "trans" (
+    "trans_id" INTEGER,
+    "account_id" INTEGER,
+    "date" TIMESTAMP,
+    "amount" DOUBLE PRECISION,
+    "balance" DOUBLE PRECISION,
+    "account" DOUBLE PRECISION,
+    "type_en" VARCHAR,
+    "operation_en" VARCHAR,
+    "k_symbol_en" VARCHAR,
+    "bank_en" VARCHAR
+);
+CREATE TABLE "district" (
+    "id" INTEGER,
+    "district" VARCHAR,
+    "region" VARCHAR,
+    "population" INTEGER,
+    "primary_sector" INTEGER,
+    "secondary_sector" INTEGER,
+    "tertiary_sector" INTEGER,
+    "universities" INTEGER,
+    "hospitals" INTEGER,
+    "employment_rate" DOUBLE PRECISION,
+    "avg_income_czk" INTEGER,
+    "unemployment_rate" DOUBLE PRECISION,
+    "long_term_unemployment" DOUBLE PRECISION,
+    "education_index" INTEGER,
+    "businesses" DOUBLE PRECISION,
+    "households" INTEGER
+);
+CREATE TABLE "order" (
+    "order_id" INTEGER,
+    "account_id" INTEGER,
+    "bank_to" VARCHAR,
+    "account_to" INTEGER,
+    "amount" DOUBLE PRECISION,
+    "k_symbol" VARCHAR
+);
+SET search_path TO financial2;
+
+--------------------------------------------------------
+-- ✅ 1. Add PRIMARY KEYS
+--------------------------------------------------------
+
+ALTER TABLE "district"
+    ADD CONSTRAINT pk_district PRIMARY KEY ("ID");
+
+ALTER TABLE "account"
+    ADD CONSTRAINT pk_account PRIMARY KEY ("account_id");
+
+ALTER TABLE "client"
+    ADD CONSTRAINT pk_client PRIMARY KEY ("client_id");
+
+ALTER TABLE "disp"
+    ADD CONSTRAINT pk_disp PRIMARY KEY ("disp_id");
+
+ALTER TABLE "card"
+    ADD CONSTRAINT pk_card PRIMARY KEY ("card_id");
+
+ALTER TABLE "loan"
+    ADD CONSTRAINT pk_loan PRIMARY KEY ("loan_id");
+
+ALTER TABLE "order"
+    ADD CONSTRAINT pk_order PRIMARY KEY ("order_id");
+
+ALTER TABLE "trans"
+    ADD CONSTRAINT pk_trans PRIMARY KEY ("trans_id");
+
+--------------------------------------------------------
+-- ✅ 2. Add FOREIGN KEYS (connections between tables)
+--------------------------------------------------------
+
+-- account → district
+ALTER TABLE "account"
+    ADD CONSTRAINT fk_account_district
+    FOREIGN KEY ("district_id")
+    REFERENCES "district" ("ID")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- client → district
+ALTER TABLE "client"
+    ADD CONSTRAINT fk_client_district
+    FOREIGN KEY ("district_id")
+    REFERENCES "district" ("ID")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- disp → client
+ALTER TABLE "disp"
+    ADD CONSTRAINT fk_disp_client
+    FOREIGN KEY ("client_id")
+    REFERENCES "client" ("client_id")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- disp → account
+ALTER TABLE "disp"
+    ADD CONSTRAINT fk_disp_account
+    FOREIGN KEY ("account_id")
+    REFERENCES "account" ("account_id")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- card → disp
+ALTER TABLE "card"
+    ADD CONSTRAINT fk_card_disp
+    FOREIGN KEY ("disp_id")
+    REFERENCES "disp" ("disp_id")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- loan → account
+ALTER TABLE "loan"
+    ADD CONSTRAINT fk_loan_account
+    FOREIGN KEY ("account_id")
+    REFERENCES "account" ("account_id")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- order → account
+ALTER TABLE "order"
+    ADD CONSTRAINT fk_order_account
+    FOREIGN KEY ("account_id")
+    REFERENCES "account" ("account_id")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- trans → account
+ALTER TABLE "trans"
+    ADD CONSTRAINT fk_trans_account
+    FOREIGN KEY ("account_id")
+    REFERENCES "account" ("account_id")
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+INSERT INTO "district" ("ID", "District", "Region")
+VALUES (69, 'Unknown District', 'Unknown Region');
+
+ALTER TABLE "district"
+    ADD CONSTRAINT pk_district PRIMARY KEY ("ID");
+
+ALTER TABLE "account"
+    ADD CONSTRAINT pk_account PRIMARY KEY (account_id);
+
+ALTER TABLE "client"
+    ADD CONSTRAINT pk_client PRIMARY KEY (client_id);
+
+ALTER TABLE "disp"
+    ADD CONSTRAINT pk_disp PRIMARY KEY (disp_id);
+
+ALTER TABLE "card"
+    ADD CONSTRAINT pk_card PRIMARY KEY (card_id);
+
+ALTER TABLE "loan"
+    ADD CONSTRAINT pk_loan PRIMARY KEY (loan_id);
+
+ALTER TABLE "trans"
+    ADD CONSTRAINT pk_trans PRIMARY KEY (trans_id);
+
+ALTER TABLE "order"
+    ADD CONSTRAINT pk_order PRIMARY KEY (order_id);
+
+ALTER TABLE "account"
+    ADD CONSTRAINT fk_account_district
+    FOREIGN KEY (district_id)
+    REFERENCES "district"("ID");
+
+ALTER TABLE "disp"
+    ADD CONSTRAINT fk_disp_client
+    FOREIGN KEY (client_id)
+    REFERENCES "client"(client_id),
+    ADD CONSTRAINT fk_disp_account
+    FOREIGN KEY (account_id)
+    REFERENCES "account"(account_id);
+
+ALTER TABLE "card"
+    ADD CONSTRAINT fk_card_disp
+    FOREIGN KEY (disp_id)
+    REFERENCES "disp"(disp_id);
+
+ALTER TABLE "loan"
+    ADD CONSTRAINT fk_loan_account
+    FOREIGN KEY (account_id)
+    REFERENCES "account"(account_id);
+
+ALTER TABLE "trans"
+    ADD CONSTRAINT fk_trans_account
+    FOREIGN KEY (account_id)
+    REFERENCES "account"(account_id);
+
+ALTER TABLE "order"
+    ADD CONSTRAINT fk_order_account
+    FOREIGN KEY (account_id)
+    REFERENCES "account"(account_id);
